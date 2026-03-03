@@ -28,13 +28,15 @@ def load_user(user_id):
 # Inicializar base de datos y crear admin por defecto
 with app.app_context():
     db.create_all()
-    # Creamos el admin definitivo automáticamente si no existe
-    from models import User  
+    
+    # --- CONFIGURACIÓN DE DEMOSTRACIÓN ---
+    # Nota: En producción, usar variables de entorno para las credenciales.
+    from models import User
     from werkzeug.security import generate_password_hash
     
-    if not User.query.filter_by(username='losvillanos').first():
-        clave_segura = generate_password_hash('Villanos2026!')
-        nuevo_usuario = User(username='losvillanos', password=clave_segura)
+    if not User.query.filter_by(username='demo_admin').first():
+        clave_segura = generate_password_hash('demo1234')
+        nuevo_usuario = User(username='demo_admin', password=clave_segura)
         db.session.add(nuevo_usuario)
         db.session.commit()
 
