@@ -1,0 +1,19 @@
+# Entornos virtuales
+venv/
+env/
+
+# Archivos de caché de Python
+__pycache__/
+*.pyc
+
+# Base de datos local (¡Muy importante no subirla!)
+instance/
+menu.db
+*.sqlite3
+
+# Carpeta de fotos subidas (Ignoramos los archivos, pero mantenemos la carpeta)
+static/uploads/*
+!static/uploads/.gitkeep
+
+# Variables de entorno
+.env

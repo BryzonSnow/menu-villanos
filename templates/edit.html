@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Plato{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white fw-bold d-flex justify-content-between align-items-center">
+                <span>Editar: {{ plato.name }}</span>
+                <a href="{{ url_for('admin') }}" class="btn btn-sm btn-light">Volver</a>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit', id=plato.id) }}" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Nombre del plato</label>
+                        <input type="text" class="form-control" name="name" value="{{ plato.name }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Categoría</label>
+                        <select class="form-select" name="category_id" required>
+                            {% for cat in categorias %}
+                                <option value="{{ cat.id }}" {% if plato.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Precio ($)</label>
+                        <input type="number" class="form-control" name="price" value="{{ plato.price }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Descripción (Opcional)</label>
+                        <textarea class="form-control" name="description" rows="3">{{ plato.description or '' }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Actualizar Foto (Deja en blanco para mantener la actual)</label>
+                        <input class="form-control" type="file" name="image" accept="image/*">
+                        {% if plato.image_file %}
+                            <div class="mt-2 small text-success">
+                                <span class="fw-bold">✓</span> Este plato ya tiene una foto asignada.
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-check form-switch mb-4">
+                        <input class="form-check-input" type="checkbox" role="switch" id="isActive" name="is_active" {% if plato.is_active %}checked{% endif %}>
+                        <label class="form-check-label fw-bold text-secondary" for="isActive">Plato Disponible (Mostrar en el menú)</label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

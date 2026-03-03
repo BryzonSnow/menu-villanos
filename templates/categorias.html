@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestionar Categorías{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Categorías del Menú</h2>
+    <div>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary me-2">Volver a Platos</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white fw-bold">
+                Nueva Categoría
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('categorias') }}">
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Nombre de la categoría</label>
+                        <input type="text" class="form-control" name="name" placeholder="Ej: Bebidas, Postres..." required>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Guardar Categoría</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-0 table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cat in categorias %}
+                        <tr>
+                            <td class="text-muted">#{{ cat.id }}</td>
+                            <td class="fw-bold">{{ cat.name }}</td>
+                            <td class="text-end">
+                                <form action="{{ url_for('delete_categoria', id=cat.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¡CUIDADO! Si borras esta categoría, también se borrarán todos los platos que pertenezcan a ella. ¿Estás seguro?');">Borrar</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="3" class="text-center text-muted py-4">No hay categorías creadas todavía.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

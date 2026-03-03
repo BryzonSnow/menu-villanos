@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+
+{% block title %}Nuestro Menú{% endblock %}
+
+{% block content %}
+<style>
+    /* Estilos del diseño Light y fresco */
+    body {
+        background-color: #f8f9fa; /* Fondo gris muy clarito/blanco */
+        color: #333;
+    }
+    
+    /* Pestañas de Navegación (Tabs) */
+    .nav-pills .nav-link {
+        color: #6c757d;
+        border-radius: 30px;
+        padding: 8px 22px;
+        margin: 0 5px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 1px;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+    }
+    /* El verde vibrante para la pestaña activa */
+    .nav-pills .nav-link.active {
+        background-color: #2ecc71; 
+        color: #fff;
+        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3);
+    }
+    .nav-pills .nav-link:hover:not(.active) {
+        color: #2ecc71;
+        background-color: rgba(46, 204, 113, 0.1);
+    }
+
+    /* Contenedor deslizable para móviles */
+    .category-scroll {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 10px;
+        -webkit-overflow-scrolling: touch;
+    }
+    .category-scroll::-webkit-scrollbar { display: none; }
+
+    /* Tarjetas de Platos */
+    .dish-card {
+        background: #fff;
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+        transition: transform 0.3s ease;
+        height: 100%;
+        text-align: center;
+        padding: 25px 20px;
+    }
+    .dish-card:hover { transform: translateY(-5px); }
+    
+    /* Diseño circular de las fotos */
+    .dish-img {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin: 0 auto 15px auto;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        border: 4px solid #fff;
+    }
+    
+    .dish-title { font-weight: 700; font-size: 1.15rem; color: #2c3e50; }
+    .dish-desc { font-size: 0.85rem; color: #7f8c8d; line-height: 1.4; }
+    .dish-price { font-size: 1.25rem; font-weight: 800; color: #2ecc71; margin-top: 10px; }
+
+    /* --- Botón Flotante de WhatsApp --- */
+    .whatsapp-float {
+        position: fixed;
+        width: 60px;
+        height: 60px;
+        bottom: 30px;
+        right: 30px;
+        background-color: #25d366; /* El verde oficial de WhatsApp */
+        color: #FFF;
+        border-radius: 50px;
+        text-align: center;
+        box-shadow: 0px 4px 15px rgba(37, 211, 102, 0.4);
+        z-index: 1000; /* Asegura que siempre esté por encima de todo */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .whatsapp-float:hover {
+        transform: scale(1.1);
+        color: #FFF;
+        box-shadow: 0px 6px 20px rgba(37, 211, 102, 0.6);
+    }
+    
+    /* Ajuste para pantallas de celulares */
+    @media (max-width: 768px) {
+        .whatsapp-float {
+            width: 50px;
+            height: 50px;
+            bottom: 20px;
+            right: 20px;
+        }
+        .whatsapp-float svg {
+            width: 25px;
+            height: 25px;
+        }
+    }
+</style>
+
+<div class="text-center mt-4 mb-5">
+    <h1 class="fw-bold" style="font-family: 'Georgia', serif; font-style: italic;">Nuestro Menú</h1>
+    <p class="text-muted">Conoce nuestras deliciosas preparaciones</p>
+</div>
+
+<div class="container mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill shadow-sm border-0" placeholder="Buscar un plato, ej: Mechada..." autocomplete="off">
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <ul class="nav nav-pills justify-content-md-center category-scroll flex-nowrap flex-md-wrap" id="menuTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="todos-tab" data-bs-toggle="tab" data-bs-target="#todos" type="button" role="tab">Todos</button>
+        </li>
+        {% for categoria in categorias %}
+            {% set activos = categoria.dishes | selectattr('is_active', 'equalto', true) | list %}
+            {% if activos %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="cat-{{ categoria.id }}-tab" data-bs-toggle="tab" data-bs-target="#cat-{{ categoria.id }}" type="button" role="tab">
+                    {{ categoria.name }}
+                </button>
+            </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="container pb-5">
+    <div class="tab-content" id="menuTabsContent">
+        
+        <div class="tab-pane fade show active" id="todos" role="tabpanel">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                {% for categoria in categorias %}
+                    {% for plato in categoria.dishes if plato.is_active %}
+                        <div class="col">
+                            <div class="dish-card">
+                                {% if plato.image_file %}
+                                    <img src="{{ url_for('static', filename='uploads/' + plato.image_file) }}" alt="{{ plato.name }}" class="dish-img">
+                                {% else %}
+                                    <div class="dish-img d-flex align-items-center justify-content-center bg-light text-muted">
+                                        <span class="fs-1">🍲</span>
+                                    </div>
+                                {% endif %}
+                                <h5 class="dish-title">{{ plato.name }}</h5>
+                                {% if plato.description %}
+                                    <p class="dish-desc mb-0">{{ plato.description }}</p>
+                                {% endif %}
+                                <div class="dish-price">${{ plato.price }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+
+        {% for categoria in categorias %}
+            {% set activos = categoria.dishes | selectattr('is_active', 'equalto', true) | list %}
+            {% if activos %}
+            <div class="tab-pane fade" id="cat-{{ categoria.id }}" role="tabpanel">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    {% for plato in activos %}
+                        <div class="col">
+                            <div class="dish-card">
+                                {% if plato.image_file %}
+                                    <img src="{{ url_for('static', filename='uploads/' + plato.image_file) }}" alt="{{ plato.name }}" class="dish-img">
+                                {% else %}
+                                    <div class="dish-img d-flex align-items-center justify-content-center bg-light text-muted">
+                                        <span class="fs-1">🍲</span>
+                                    </div>
+                                {% endif %}
+                                <h5 class="dish-title">{{ plato.name }}</h5>
+                                {% if plato.description %}
+                                    <p class="dish-desc mb-0">{{ plato.description }}</p>
+                                {% endif %}
+                                <div class="dish-price">${{ plato.price }}</div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endfor %}
+
+    </div>
+</div>
+
+<a href="https://wa.me/56964257112?text=Hola!%20Estaba%20viendo%20el%20menú%20digital%20y%20me%20gustaría%20hacer%20un%20pedido%20" 
+   class="whatsapp-float" 
+   target="_blank" 
+   rel="noopener noreferrer"
+   aria-label="Pedir por WhatsApp">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16">
+        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+    </svg>
+</a>
+<script>
+    // 1. Lógica del buscador en tiempo real
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filtro = this.value.toLowerCase();
+        let tarjetas = document.querySelectorAll('.dish-card');
+        
+        // Si el usuario empieza a buscar, pasamos automáticamente a la pestaña "Todos"
+        if(filtro.length > 0) {
+            let tabTodos = new bootstrap.Tab(document.querySelector('#todos-tab'));
+            tabTodos.show();
+        }
+
+        tarjetas.forEach(function(tarjeta) {
+            // Buscamos el texto dentro del título y la descripción
+            let titulo = tarjeta.querySelector('.dish-title').innerText.toLowerCase();
+            let desc = tarjeta.querySelector('.dish-desc') ? tarjeta.querySelector('.dish-desc').innerText.toLowerCase() : '';
+            
+            if (titulo.includes(filtro) || desc.includes(filtro)) {
+                tarjeta.parentElement.style.display = ''; // Mostrar
+            } else {
+                tarjeta.parentElement.style.display = 'none'; // Ocultar
+            }
+        });
+    });
+</script>
+{% endblock %}
