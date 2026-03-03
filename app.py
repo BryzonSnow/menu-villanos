@@ -28,9 +28,14 @@ def load_user(user_id):
 # Inicializar base de datos y crear admin por defecto
 with app.app_context():
     db.create_all()
-    if not User.query.filter_by(username='admin').first():
-        admin_user = User(username='admin', password=generate_password_hash('1234'))
-        db.session.add(admin_user)
+    # Creamos el admin definitivo automáticamente si no existe
+    from models import User  
+    from werkzeug.security import generate_password_hash
+    
+    if not User.query.filter_by(username='losvillanos').first():
+        clave_segura = generate_password_hash('Villanos2026!')
+        nuevo_usuario = User(username='losvillanos', password=clave_segura)
+        db.session.add(nuevo_usuario)
         db.session.commit()
 
 @app.route('/')
@@ -118,13 +123,8 @@ def admin():
         
         flash('Plato agregado exitosamente', 'success')
         return redirect(url_for('admin')) # Recargamos la página para ver el plato nuevo
-
-    # Obtenemos los 3 platos con más vistas, ordenados de mayor a menor
-    top_platos = Dish.query.order_by(Dish.views.desc()).limit(3).all()
     
-    # Recuerda agregar top_platos al return
-    return render_template('admin.html', platos=platos, categorias=categorias, top_platos=top_platos)
-
+    return render_template('admin.html', platos=platos, categorias=categorias)
 
 # Ruta para editar un plato existente
 @app.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -213,15 +213,6 @@ def delete_categoria(id):
     db.session.commit()
     flash('Categoría eliminada.', 'danger')
     return redirect(url_for('categorias'))
-
-@app.route('/api/view/<int:id>', methods=['POST'])
-def track_view(id):
-    plato = Dish.query.get(id)
-    if plato:
-        plato.views += 1
-        db.session.commit()
-        return {'status': 'success'}
-    return {'status': 'error'}, 404
 
 
 if __name__ == '__main__':
