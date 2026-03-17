@@ -8,7 +8,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'clave_secreta_villanos'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///menu.db'
-app.config['UPLOAD_FOLDER'] = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = 'static/uploads' #cambiar en produccion
 app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg', 'webp'}
 
 def allowed_file(filename):
