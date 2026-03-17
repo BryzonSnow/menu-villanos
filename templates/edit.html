@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block title %}Editar Plato{% endblock %}
 
 {% block content %}
@@ -27,8 +26,13 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label text-muted small">Precio ($)</label>
+                        <label class="form-label text-muted small">Precio General ($)</label>
                         <input type="number" class="form-control" name="price" value="{{ plato.price }}" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Precio Socios ($) <span class="text-muted">- Opcional</span></label>
+                        <input type="number" class="form-control" name="precio_socio" value="{{ plato.precio_socio or '' }}">
                     </div>
                     
                     <div class="mb-3">

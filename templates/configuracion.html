@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Ajustes del Local{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">Ajustes del Sistema</h2>
+    <div>
+        <a href="{{ url_for('admin') }}" class="btn btn-outline-secondary me-2">Panel Principal</a>
+        <a href="{{ url_for('categorias') }}" class="btn btn-warning fw-bold">Categorías</a>
+    </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white fw-bold">
+                <i class="bi bi-whatsapp"></i> Configuración de WhatsApp
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('configuracion') }}" method="POST">
+                    <div class="mb-4 form-check form-switch fs-5">
+                        <input class="form-check-input" type="checkbox" name="whatsapp_activo" id="whatsapp_activo" {% if config.whatsapp_activo %}checked{% endif %}>
+                        <label class="form-check-label" for="whatsapp_activo">Habilitar botón flotante</label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Número de recepción de pedidos</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">+</span>
+                            <input type="text" class="form-control" name="whatsapp_numero" value="{{ config.whatsapp_numero }}">
+                        </div>
+                        <div class="form-text">Sin el símbolo "+" (ej: 56912345678).</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Mensaje Predefinido</label>
+                        <textarea class="form-control" name="whatsapp_mensaje" rows="3">{{ config.whatsapp_mensaje }}</textarea>
+                        <div class="form-text">Este texto aparecerá escrito automáticamente en el celular del cliente al presionar el botón.</div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-success w-100 py-2 fw-bold">Guardar Cambios</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

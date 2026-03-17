@@ -1,34 +1,26 @@
 {% extends 'base.html' %}
-
 {% block title %}Panel de Administración{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
     <h2 class="fw-bold">Panel de Administración</h2>
     <div>
-        <a href="{{ url_for('categorias') }}" class="btn btn-warning me-2 fw-bold">Gestionar Categorías</a>
-        
+        <a href="{{ url_for('categorias') }}" class="btn btn-warning me-2 fw-bold">Categorías</a>
+        <a href="{{ url_for('configuracion') }}" class="btn btn-info me-2 fw-bold text-white">⚙️ Ajustes</a>
         <a href="{{ url_for('index') }}" class="btn btn-outline-secondary me-2">Ver Menú</a>
         <a href="{{ url_for('logout') }}" class="btn btn-danger">Cerrar Sesión</a>
     </div>
 </div>
 
 {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        {% for category, message in messages %}
-            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        {% endfor %}
-    {% endif %}
-{% endwith %}
+    {% endwith %}
+
 <div class="row">
     <div class="col-md-4 mb-4">
+    
+
         <div class="card shadow-sm border-0">
-            <div class="card-header bg-dark text-white fw-bold">
-                Agregar Nuevo Plato
-            </div>
+            <div class="card-header bg-dark text-white fw-bold">Agregar Nuevo Plato</div>
             <div class="card-body">
                 <form method="POST" action="{{ url_for('admin') }}" enctype="multipart/form-data">
                     <div class="mb-3">
@@ -45,8 +37,12 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label text-muted small">Precio ($)</label>
+                        <label class="form-label text-muted small">Precio General ($)</label>
                         <input type="number" class="form-control" name="price" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-muted small">Precio Socios ($) <span class="text-muted">- Opcional</span></label>
+                        <input type="number" class="form-control" name="precio_socio">
                     </div>
                     <div class="mb-3">
                         <label class="form-label text-muted small">Descripción (Opcional)</label>
@@ -70,7 +66,7 @@
                         <tr>
                             <th>Nombre</th>
                             <th>Categoría</th>
-                            <th>Precio</th>
+                            <th>Precios</th>
                             <th>Estado</th>
                             <th>Acciones</th>
                         </tr>
@@ -79,8 +75,13 @@
                         {% for plato in platos %}
                         <tr>
                             <td class="fw-bold">{{ plato.name }}</td>
-                            <td><span class="badge bg-secondary">{{ plato.category }}</span></td>
-                            <td>${{ plato.price }}</td>
+                            <td><span class="badge bg-secondary">{{ plato.category_rel.name }}</span></td>
+                            <td>
+                                <div>N: ${{ plato.price }}</div>
+                                {% if plato.precio_socio %}
+                                    <div class="text-success fw-bold small">S: ${{ plato.precio_socio }}</div>
+                                {% endif %}
+                            </td>
                             <td>
                                 {% if plato.is_active %}
                                     <span class="badge bg-success">Activo</span>
@@ -89,16 +90,15 @@
                                 {% endif %}
                             </td>
                             <td>
-    <a href="{{ url_for('edit', id=plato.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
-    
-    <form action="{{ url_for('delete', id=plato.id) }}" method="POST" class="d-inline">
-        <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de que quieres borrar este plato? Esta acción no se puede deshacer.');">Borrar</button>
-    </form>
-</td>
+                                <a href="{{ url_for('edit', id=plato.id) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                                <form action="{{ url_for('delete', id=plato.id) }}" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Borrar definitivamente?');">Borrar</button>
+                                </form>
+                            </td>
                         </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">No hay platos en el menú todavía.</td>
+                            <td colspan="5" class="text-center text-muted py-4">No hay platos en el menú.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
